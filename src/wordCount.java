@@ -10,9 +10,9 @@ public class wordCount {
         File file = new File(args[1]);
         try {
             if (args[0].equals("-c")) {
-                System.out.println(countCharacters(file));
+                System.out.println("文本中的字符数为：" + countCharacters(file));
             } else if (args[0].equals("-w")) {
-                System.out.println(countWords(file));
+                System.out.println("文本中的单词数为：" + countWords(file));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -26,7 +26,7 @@ public class wordCount {
      */
     public static int countCharacters(File file) throws IOException {
         FileReader reader = new FileReader(file.getCanonicalPath());
-        char[] data = new char[50];
+        char[] data = new char[1024];
         int readCount;
         int characterCount = 0;
         while ((readCount = reader.read(data)) != -1) {
@@ -43,16 +43,20 @@ public class wordCount {
      */
     public static int countWords(File file) throws IOException {
         FileReader reader = new FileReader(file.getCanonicalPath());
-        char[] data = new char[50];
+        char[] data = new char[1024];
         int readCount;
         int wordCount = 0;
-        StringBuffer buffer = new StringBuffer();
+        char previous = ' ';
         while ((readCount = reader.read(data)) != -1) {
+            if (!isCharacterContained(previous) && isCharacterContained(data[0])) {
+                wordCount ++;
+            }
             for (int i = 0; i < readCount - 1; i++) {
                 if (!isCharacterContained(data[i]) && isCharacterContained(data[i + 1])) {
                     wordCount ++;
                 }
             }
+            previous = data[readCount - 1];
         }
         reader.close();
         return wordCount;
@@ -64,7 +68,7 @@ public class wordCount {
      * @return true 则表明参数c是指定的字符， false 则相反
      */
     public static boolean isCharacterContained(char c) {
-        char[] punctuationMarks = {',', '.', ';', '?', '"', ':', ' '};
+        char[] punctuationMarks = {',', '.', ';', '?', '"', ':', ' ', '\n', '\r'};
         for (Character character : punctuationMarks) {
             if (c == character) {
                 return true;
